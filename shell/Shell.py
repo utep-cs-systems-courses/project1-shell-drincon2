@@ -4,11 +4,37 @@
 import os
 import sys
 import re
+import gc
 
-#Make tokenizer (this will read the commands written in the shell)
+#Shell process
+def  shell():
+   line = {}
+   status = None 
+   while status:
+   	print("$ ")
+   	#Read
+   	line = sh_reader()
+   	#Parse
+   	args = sh_parser(line)
+   	#Execute
+   	status = sh_exec(args)
+   	#Free space 
+   	gc.collect()
+   	
+#Make reader (this will read the commands written in the shell)
+def sh_reader():
+   
+#Make parser (this will execute the commands from the tokenizer)
+def sh_parser(line): 
 
-#Make fork (This will take the tokenizer and send it to the parser to execute the commands)
-def fork_process():
+#Make exec for built_in commands (cd, exit)
+def sh_exec(args):
+
+#Make pipes
+def sh_pipes():
+
+#Make exec for commands
+def sh_exec_nativ(args):
    cpid = os.fork()
    #Fork failed
    if cpid < 0:
@@ -18,9 +44,12 @@ def fork_process():
       os.write(1, ("I'm child. Pid: %d\n" % (os.getpid())).encode())
    elif cpid > 0:
       os.write(1, ("I am parent. Pid: %d. Child Pid: %d\n" % (os.getpid(),cpid)).encode())
-   
-fork_process()      
-   
-#Make parser (this will execute the commands from the tokenizer)
+
+#Main 
+def main(argc, argv):
+   #Initialize 
+   #Interpret 
+   #Terminate 
+   shell()
 
 
