@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Libraries 
+# Modules
 import os
 import sys
 import re
@@ -23,7 +23,7 @@ def shell():
 def sh_parser(line):
    # Parse user input 
    tokens = line.split(" ")
-     
+  
    return tokens
   
 # Execute commands
@@ -45,12 +45,33 @@ def sh_exec(args):
             print("bash: cd: "+ args[command + 1] + ": No such file or directory")
             return 1
       # exit
-      if args[command] == "exit":
+      elif args[command] == "exit":
          print("Closing shell ...")
          return 2
          
-   print("invalid command...")
+      # Redirection of i/o
+      elif args[command] == ">":
+         try:
+            sh_redirect_io(args)
+            return 1
+         except:
+            print("directory not found or invalid")
+         
+   print(args[0] + ": command not found")
    
    return 1
-
+   
+ 
+# Redirection of i/o
+def sh_redirect_io(args):
+   # List of files in directory
+   dir_files = os.listdir()
+   
+   # Write file in specified directory
+   with open(args[-1], 'w') as output_file:
+      for file in sorted(dir_files, key = str.lower):
+         output_file.write(file + "\n")
+         
+      output_file.close()
+   
 shell() 
