@@ -103,7 +103,7 @@ def sh_pipes(args):
       r = os.fdopen(r)
       cstr = r.read()
       print(cstr)
-      sys.exit(0)
+      
    # Child process
    else:
       os.close(r)
@@ -115,8 +115,7 @@ def sh_pipes(args):
          for file in sorted(dir_list, key = str.lower, reverse = True):
             w.write(file + "\n")
          w.close()
-      
-      sys.exit(0)
+         sys.exit(0)
    
 
 shell() 
