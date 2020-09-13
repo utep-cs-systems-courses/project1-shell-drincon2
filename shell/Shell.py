@@ -8,25 +8,25 @@ import re
 
 # Shell process
 def shell():
-    status = 1
+   status = 1
     
-    while status == 1:
-       # Read user input for commands
-       line = input(os.getcwd() + "$ ")       
-       # Parse user input
-       args = sh_parser(line)
-       # Execute commands
-       status = sh_exec(args)
+   while status == 1:
+      # Read user input for commands
+      line = input(os.getcwd() + "$ ")       
+      # Parse user input
+      args = sh_parser(line)
+      # Execute commands
+      status = sh_exec(args)
        
     
 # Shell parser
 def sh_parser(line):
-  # Parse user input 
-  tokens = line.split(" ")
+   # Parse user input 
+   tokens = line.split(" ")
   
-  return tokens
+   return tokens
   
-# Execute commands
+# Execute built-in shell commands
 def sh_exec(args):
    # Check user input is not empty 
    if not args or '' in args:
@@ -65,23 +65,30 @@ def sh_exec(args):
          except (EOFError):
             print("Pipe failed, closing shell...")
             return 2
-         
-   print(args[0] + ": command not found")
+   
+   # Look for shell commands and execute them 
+   try:
+      sh_exec_nativ(args)
+   except:      
+      print(args[0] + ": command not found")
    
    return 1
    
  
 # Redirection of i/o
 def sh_redirect_io(args):
-   # List of files in directory
-   dir_files = os.listdir()
    
-   # Write file in specified directory
-   with open(args[-1], 'w') as output_file:
-      for file in sorted(dir_files, key = str.lower):
-         output_file.write(file + "\n")
+   # i/o redirection for ls command 
+   if args[0] == "ls":
+      # List of files in directory
+      dir_files = os.listdir()
+   
+      # Write file in specified directory
+      with open(args[-1], 'w') as output_file:
+         for file in sorted(dir_files, key = str.lower):
+            output_file.write(file + "\n")
          
-      output_file.close()
+         output_file.close()
    
    
 # Pipes
@@ -110,12 +117,38 @@ def sh_pipes(args):
       w = os.fdopen(w, 'w')
       
       # Flag -r for command ls | sort
-      if args[-1] == "-r":
+      if args[0] == "ls" and args[-1] == "-r":
          dir_list = os.listdir()
          for file in sorted(dir_list, key = str.lower, reverse = True):
             w.write(file + "\n")
          w.close()
          sys.exit(0)
+         
+# Execute shell commands
+def sh_exec_nativ(args):
+   cpid = os.fork()
    
-
+   if cpid < 0:
+      print("Fork failed")
+      sys.exit(-1)
+   
+   # Child process 
+   elif cpid == 0:
+      for dir in re.split(":", os.environ['PATH']): # try each directory in the path
+         program = "%s/%s" % (dir, args[0])
+        
+         try:
+            os.execve(program, args, os.environ) # try to exec program
+         except FileNotFoundError:             # ...expected
+            pass                              # ...fail quietly
+           
+      # Error ocurred
+      print("This should not print")
+      sys.exit(-1)
+   
+   # Parent process
+   else:
+      status = os.wait()
+      print("Parent process terminated")
+   
 shell() 
