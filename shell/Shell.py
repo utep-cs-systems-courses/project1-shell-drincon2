@@ -149,6 +149,6 @@ def sh_exec_nativ(args):
    # Parent process
    else:
       status = os.wait()
-      print("Parent process terminated")
+      
    
 shell() 
