@@ -10,21 +10,20 @@ import re
 def shell():
    status = 1
     
+   try:
+      sys.ps1 = os.environ['PS1']
+   except:
+      sys.ps1 = '$ '
+    
    while status == 1:
+      
       # Read user input for commands
-      line = input(os.getcwd() + "$ ")       
+      line = input(os.getcwd() + sys.ps1)       
       # Parse user input
-      args = sh_parser(line)
+      args = line.split(" ")
       # Execute commands
       status = sh_exec(args)
-       
-    
-# Shell parser
-def sh_parser(line):
-   # Parse user input 
-   tokens = line.split(" ")
-  
-   return tokens
+           
   
 # Execute built-in shell commands
 def sh_exec(args):
@@ -134,21 +133,20 @@ def sh_exec_nativ(args):
    
    # Child process 
    elif cpid == 0:
-      for dir in re.split(":", os.environ['PATH']): # try each directory in the path
-         program = "%s/%s" % (dir, args[0])
+     for dir in re.split(":", os.environ['PATH']): # try each directory in the path
+        program = "%s/%s" % (dir, args[0])
         
-         try:
-            os.execve(program, args, os.environ) # try to exec program
-         except FileNotFoundError:             # ...expected
-            pass                              # ...fail quietly
+        try:
+           os.execve(program, args, os.environ) # try to exec program
+        except FileNotFoundError:             # ...expected
+           pass                              # ...fail quietly
            
-      # Error ocurred
-      print("This should not print")
-      sys.exit(-1)
+     # Error ocurred
+     print("This should not print")
+     sys.exit(-1)
    
    # Parent process
    else:
       status = os.wait()
-      
    
 shell() 
