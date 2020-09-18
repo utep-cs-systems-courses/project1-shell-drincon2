@@ -10,19 +10,18 @@ import re
 def shell():
    status = 1
     
-   try:
-      sys.ps1 = os.environ['PS1']
-   except:
-      sys.ps1 = '$ '
-    
    while status == 1:
-      
-      # Read user input for commands
-      line = input(sys.ps1)       
-      # Parse user input
-      args = line.split(" ")
-      # Execute commands
-      status = sh_exec(args)
+      # Check for environmental variable PS1
+      try:
+         sys.ps1 = os.environ['PS1']
+      except:
+         sys.ps1 = '$ '  
+         # Read user input for commands
+         line = input(sys.ps1)       
+         # Parse user input
+         args = line.split(" ")
+         # Execute commands
+         status = sh_exec(args)
            
   
 # Execute built-in shell commands
@@ -42,6 +41,13 @@ def sh_exec(args):
          # Prompt error message whenever directory is invalid
          except FileNotFoundError:
             print("bash: cd: "+ args[command + 1] + ": No such file or directory")
+            return 1
+      elif args[command] == "pwd":
+         try: 
+            print(os.getcwd())
+            return 1
+         except:
+            print("Unknown error")
             return 1
       # exit
       elif args[command] == "exit":
@@ -64,17 +70,7 @@ def sh_exec(args):
          except (EOFError):
             print("Pipe failed, closing shell...")
             return 2
-            
-      # Execute shell files
-      elif "./" in args[command]:
-         try:
-            cwd = args[0]
-            os.system(cwd)
-            return 1
-         except:
-            print("Error: file could not execute")
-            
-       
+             
    
    # Look for shell commands and execute them 
    try:
@@ -85,7 +81,7 @@ def sh_exec(args):
    return 1
    
  
-# Redirection of i/o
+# Redirection of input
 def sh_redirect_io(args):
    
    # i/o redirection for ls command 
@@ -133,6 +129,7 @@ def sh_pipes(args):
             w.write(file + "\n")
          w.close()
          sys.exit(0)
+
          
 # Execute shell commands
 def sh_exec_nativ(args):
@@ -144,17 +141,17 @@ def sh_exec_nativ(args):
    
    # Child process 
    elif cpid == 0:
-      for dir in re.split(":", os.environ['PATH']): # try each directory in the path
-         program = "%s/%s" % (dir, args[0])
+     for dir in re.split(":", os.environ['PATH']): # try each directory in the path
+        program = "%s/%s" % (dir, args[0])
       
-         try:
-            os.execve(program, args, os.environ) # try to exec program
-         except FileNotFoundError:             # ...expected
-            pass                              # ...fail quietly
+        try:
+           os.execve(program, args, os.environ) # try to exec program
+        except FileNotFoundError:             # ...expected
+           pass                              # ...fail quietly
            
-      # Error ocurred
-      print("This should not print")
-      sys.exit(-1)
+     # Error ocurred
+     print("This should not print")
+     sys.exit(-1)
    
    # Parent process
    else:
