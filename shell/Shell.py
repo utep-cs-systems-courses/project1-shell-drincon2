@@ -16,12 +16,12 @@ def shell():
          sys.ps1 = os.environ['PS1']
       except:
          sys.ps1 = '$ '  
-         # Read user input for commands
-         line = input(sys.ps1)       
-         # Parse user input
-         args = line.split(" ")
-         # Execute commands
-         status = sh_exec(args)
+      # Read user input for commands
+      line = input(sys.ps1)       
+      # Parse user input
+      args = line.split(" ")
+      # Execute commands
+      status = sh_exec(args)
            
   
 # Execute built-in shell commands
