@@ -40,27 +40,36 @@ def sh_exec(args):
             return 1 
          # Prompt error message whenever directory is invalid
          except FileNotFoundError:
-            print("bash: cd: "+ args[command + 1] + ": No such file or directory")
+            os.write(2, ("bash: cd: "+ args[command + 1] + ": No such file or directory\n").encode())
             return 1
+      # pwd
       elif args[command] == "pwd":
          try: 
-            print(os.getcwd())
+            os.write(2, (os.getcwd() + "\n").encode())
             return 1
          except:
-            print("Unknown error")
+            os.write(2, ("Unknown error\n").encode())
             return 1
       # exit
       elif args[command] == "exit":
-         print("Closing shell ...")
+         os.write(2, ("Closing shell ...\n").encode())
          return 2
          
-      # Redirection of i/o
-      elif args[command] == ">":
+      # Redirection of input
+      elif args[command] == "<" and len(args) == 3:
          try:
-            sh_redirect_io(args)
+            sh_redirect_in(args)
             return 1
          except:
-            print("directory not found or invalid")
+            os.write(2, ("directory not found or invalid\n").encode())
+      
+      # Redirection of output
+      elif args[command] == ">":
+         try:
+            sh_redirect_out(args)
+            return 1
+         except:
+            os.write(2, ("directory not found or invalid\n").encode())
             
       # Pipes
       elif args[command] == "|":
@@ -68,7 +77,7 @@ def sh_exec(args):
             sh_pipes(args)
             return 1
          except (EOFError):
-            print("Pipe failed, closing shell...")
+            os.write(2, ("Pipe failed, closing shell...\n").encode())
             return 2
              
    
@@ -76,15 +85,24 @@ def sh_exec(args):
    try:
       sh_exec_nativ(args)
    except:      
-      print(args[0] + ": command not found")
+      os.write(2, (args[0] + ": command not found\n").encode())
    
    return 1
-   
+
+
+# Redirection of input 
+def sh_redirect_in(args):
+   # Check 'cat' command in args
+   if "cat" in args:
+      with open (args[-1], 'r') as input_file:
+         for line in input_file:
+            os.write(2, line.encode())
+         input_file.close()
  
-# Redirection of input
-def sh_redirect_io(args):
+# Redirection of output
+def sh_redirect_out(args):
    
-   # i/o redirection for ls command 
+   # output redirection for ls command 
    if args[0] == "ls":
       # List of files in directory
       dir_files = os.listdir()
@@ -107,7 +125,7 @@ def sh_pipes(args):
    pid = os.fork()
    
    if pid < 0:
-      print("Fork failed")
+      os.write(2, ("Fork failed\n").encode())
       sys.exit(-1)
    # Parent process
    elif pid > 0: 
@@ -115,7 +133,7 @@ def sh_pipes(args):
       os.close(w)
       r = os.fdopen(r)
       cstr = r.read()
-      print(cstr)
+      os.write(2, cstr.encode())
       
    # Child process
    else:
@@ -136,7 +154,7 @@ def sh_exec_nativ(args):
    cpid = os.fork()
    
    if cpid < 0:
-      print("Fork failed")
+      os.write(2, ("Fork failed\n").encode())
       sys.exit(-1)
    
    # Child process 
@@ -150,7 +168,7 @@ def sh_exec_nativ(args):
            pass                              # ...fail quietly
            
      # Error ocurred
-     print("This should not print")
+     os.write(2, ("This should not print\n").encode())
      sys.exit(-1)
    
    # Parent process
