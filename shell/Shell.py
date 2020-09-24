@@ -9,15 +9,13 @@ import re
 # Shell process
 def shell():
    status = 1
-    
+   sh_prompt = "$ " 
    while status == 1:
       # Check for environmental variable PS1
-      try:
-         sys.ps1 = os.environ['PS1']
-      except:
-         sys.ps1 = '$ '  
+      if "PS1" in os.environ:
+         sh_prompt = os.environ["PS1"]
       # Read user input for commands
-      line = input(sys.ps1)       
+      line = input(sh_prompt)       
       # Parse user input
       args = line.split(" ")
       # Execute commands
