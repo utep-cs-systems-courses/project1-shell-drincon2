@@ -28,62 +28,53 @@ def sh_exec(args):
    if not args or '' in args:
       return 1
    
-   # Check for built-in commands
-   for command in range(len(args)):
-      # cd 
-      if args[command] == "cd" and args[command + 1] != None:
-         # Change to directory specified by user
-         try:
-            os.chdir(args[command + 1])
-            return 1 
-         # Prompt error message whenever directory is invalid
-         except FileNotFoundError:
-            os.write(2, ("bash: cd: "+ args[command + 1] + ": No such file or directory\n").encode())
-            return 1
-      # pwd
-      elif args[command] == "pwd":
-         try: 
-            os.write(2, (os.getcwd() + "\n").encode())
-            return 1
-         except:
-            os.write(2, ("Unknown error\n").encode())
-            return 1
-      # exit
-      elif args[command] == "exit":
-         os.write(2, ("Closing shell ...\n").encode())
-         return 2
+   # cd 
+   if "cd" in args and len(args) == 2:
+      # Change to directory specified by user
+      try:
+         os.chdir(args[1])
+         return 1 
+      # Prompt error message whenever directory is invalid
+      except FileNotFoundError:
+         os.write(2, ("bash: cd: "+ args[1] + ": No such file or directory\n").encode())
+         return 1
+   # exit
+   elif "exit" in args:
+      os.write(2, ("Closing shell ...\n").encode())
+      return 2
          
-      # Redirection of input
-      elif args[command] == "<" and len(args) == 3:
-         try:
-            sh_redirect_in(args)
-            return 1
-         except:
-            os.write(2, ("directory not found or invalid\n").encode())
+   # Redirection of input
+   elif "<" in args:
+      try:
+         sh_redirect_in(args)
+         return 1
+      except:
+         os.write(2, ("directory not found or invalid\n").encode())
       
-      # Redirection of output
-      elif args[command] == ">":
-         try:
-            sh_redirect_out(args)
-            return 1
-         except:
-            os.write(2, ("directory not found or invalid\n").encode())
+   # Redirection of output
+   elif ">" in args:
+      try:
+         sh_redirect_out(args)
+         return 1
+      except:
+         os.write(2, ("directory not found or invalid\n").encode())
             
-      # Pipes
-      elif args[command] == "|":
-         try: 
-            sh_pipes(args)
-            return 1
-         except (EOFError):
-            os.write(2, ("Pipe failed, closing shell...\n").encode())
-            return 2
+   # Pipes
+   elif "|" in args:
+      try: 
+         sh_pipes(args)
+         return 1
+      except (EOFError):
+         os.write(2, ("Pipe failed, closing shell...\n").encode())
+         return 2
              
    
    # Look for shell commands and execute them 
-   try:
-      sh_exec_nativ(args)
-   except:      
-      os.write(2, (args[0] + ": command not found\n").encode())
+   else:
+      try:
+         sh_exec_nativ(args)
+      except:      
+         os.write(2, (args[0] + ": command not found\n").encode())
    
    return 1
 
@@ -101,7 +92,7 @@ def sh_redirect_in(args):
 def sh_redirect_out(args):
    
    # output redirection for ls command 
-   if args[0] == "ls":
+   if "cat" in args:
       # List of files in directory
       dir_files = os.listdir()
    

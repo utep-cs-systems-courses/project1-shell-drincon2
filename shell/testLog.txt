@@ -6,7 +6,7 @@ FAILED: one parameter, full pathname
 PASSED: one parameter, no pathname
 FAILED: pipe
 FAILED: 2 pipes
-PASSED: redirect input
+FAILED: redirect input
 FAILED: redirect output
 FAILED: background
 FAILED: change dir
